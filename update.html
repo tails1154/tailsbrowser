@@ -9,20 +9,40 @@
             text-align: center;
         }
         #percent {
-            font-size: 32px;
-            margin-top: 20px;
+            font-size: 24px;
+            margin-top: 10px;
+        }
+        #progress-container {
+            width: 80%;
+            height: 25px;
+            background: #ddd;
+            margin: 20px auto;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        #progress-bar {
+            height: 100%;
+            width: 0%;
+            background: #4caf50;
+            transition: width 0.2s ease-out;
         }
     </style>
 </head>
 <body>
     <h1>Updating…</h1>
     <p>Please wait. The application will restart automatically.</p>
+
+    <div id="progress-container">
+        <div id="progress-bar"></div>
+    </div>
+
     <div id="percent">0%</div>
 
     <script>
         const { ipcRenderer } = require("electron");
         ipcRenderer.on("update-progress", (_, percent) => {
-            document.getElementById("percent").innerText = percent + "%";
+            document.getElementById("percent").innerText = Math.floor(percent) + "%";
+            document.getElementById("progress-bar").style.width = percent + "%";
         });
     </script>
 </body>
