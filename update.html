@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Updating...</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            padding: 20px;
+            text-align: center;
+        }
+        #percent {
+            font-size: 32px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Updating…</h1>
+    <p>Please wait. The application will restart automatically.</p>
+    <div id="percent">0%</div>
+
+    <script>
+        const { ipcRenderer } = require("electron");
+        ipcRenderer.on("update-progress", (_, percent) => {
+            document.getElementById("percent").innerText = percent + "%";
+        });
+    </script>
+</body>
+</html>

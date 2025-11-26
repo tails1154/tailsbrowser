@@ -1,6 +1,6 @@
 {
   "name": "tails-browser",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "stupid browser",
   "author": "tails1154",
 
@@ -27,7 +27,7 @@
     "publish": [
       {
         "provider": "generic",
-        "url": "http://tails1154.com:9782/browser/"
+        "url": "https://tails1154.com:9997/browser/"
       }
     ],
 
