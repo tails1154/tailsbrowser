@@ -23,7 +23,8 @@ function createWindow() {
 
 app.whenReady().then(() => {
     createWindow();
-    autoUpdater.autoDownload = false;   // we will control when it downloads
+
+    autoUpdater.autoDownload = false; // manually handle
     autoUpdater.checkForUpdates();
 });
 
@@ -33,21 +34,31 @@ app.whenReady().then(() => {
 autoUpdater.on("update-available", (info) => {
     console.log("Update available:", info.version);
 
-    // Force update popup
-    const result = dialog.showMessageBoxSync({
+    // Force-update dialog
+    dialog.showMessageBoxSync({
         type: "info",
         buttons: ["Update Now"],
         defaultId: 0,
             title: "Update Required",
-            message: "A new update is available and required to continue.",
-            detail: `Version ${info.version} is ready.\nThe app will update now.`,
+            message: `Version ${info.version} is available and required.`,
+            detail: "The app must update before continuing.",
             noLink: true
     });
 
-    if (result === 0) {
-        autoUpdater.downloadUpdate();
-        showUpdateWindow();
+    // Try to close the main window
+    try {
+        if (mainWindow && !mainWindow.isDestroyed()) {
+            mainWindow.close();
+        }
+    } catch (e) {
+        // Fallback if close fails (very rare)
+        if (mainWindow && !mainWindow.isDestroyed()) {
+            mainWindow.loadURL("data:text/html,<h1>Updating…</h1>");
+        }
     }
+
+    autoUpdater.downloadUpdate();
+    showUpdateWindow();
 });
 
 autoUpdater.on("download-progress", (progress) => {
@@ -57,16 +68,22 @@ autoUpdater.on("download-progress", (progress) => {
 });
 
 autoUpdater.on("update-downloaded", () => {
+    // Close the update window when done
+    if (updateWindow && !updateWindow.isDestroyed()) {
+        updateWindow.close();
+        updateWindow = null;
+    }
+
+    // Install the update
     autoUpdater.quitAndInstall(true, true);
 });
 
-// OPTIONAL: show "checking" in logs
 autoUpdater.on("checking-for-update", () => {
     console.log("Checking for updates...");
 });
 
 // --------------------------------------
-// OPTIONAL UPDATE UI WINDOW
+// UPDATE WINDOW
 // --------------------------------------
 function showUpdateWindow() {
     updateWindow = new BrowserWindow({
@@ -77,7 +94,7 @@ function showUpdateWindow() {
         movable: false,
         minimizable: false,
         maximizable: false,
-        closable: false,
+        closable: false, // block closing
         title: "Updating...",
         webPreferences: {
             nodeIntegration: true,
@@ -87,6 +104,10 @@ function showUpdateWindow() {
 
     updateWindow.loadFile("update.html");
 
-    // Disable closing (forces update)
-    updateWindow.on("close", (e) => e.preventDefault());
+    // Prevent user from closing it
+    updateWindow.on("close", (e) => {
+        if (!autoUpdater.isDownloaded) {
+            e.preventDefault();
+        }
+    });
 }
