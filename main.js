@@ -70,7 +70,7 @@ autoUpdater.on("download-progress", (progress) => {
 autoUpdater.on("update-downloaded", () => {
     // Close the update window when done
     if (updateWindow && !updateWindow.isDestroyed()) {
-	window.UpdateWindowClosable = true;
+	global.UpdateWindowClosable = true;
         updateWindow.close();
         updateWindow = null;
     }
@@ -88,7 +88,7 @@ autoUpdater.on("checking-for-update", () => {
 // UPDATE WINDOW
 // --------------------------------------
 function showUpdateWindow() {
-    window.UpdateWindowClosable = false;
+    global.UpdateWindowClosable = false;
     updateWindow = new BrowserWindow({
         width: 400,
         height: 200,
@@ -109,7 +109,7 @@ function showUpdateWindow() {
 
     // Prevent user from closing it
     updateWindow.on("close", (e) => {
-        if (!window.UpdateWindowClosable) {
+        if (!global.UpdateWindowClosable) {
             e.preventDefault();
         }
     });
